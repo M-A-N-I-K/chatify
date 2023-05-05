@@ -18,7 +18,7 @@ Chatify is a chat web application that allows users to chat with each other. It 
 
 To install chatify, follow these steps:
 
-1. Clone the repository to your local machine using `https://github.com/M-A-N-I-K/chatify.git`
+1. Clone the repository to your local machine using `git clone https://github.com/M-A-N-I-K/chatify.git`
 2. Navigate to the project directory using `cd Client`
 3. Install the required dependencies using `npm install`
 4. Run `npm run dev`
