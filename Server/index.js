@@ -12,7 +12,7 @@ import { Server } from "socket.io"
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: "https://chatify-app-static.netlify.app",
+        origin: "http://127.0.0.1:5173",
         methods: ["GET", "POST"],
     }
 })

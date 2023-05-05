@@ -3,12 +3,15 @@ import socketContext from "../context/socketContext";
 import { useQuill } from "react-quilljs";
 import "quill/dist/quill.snow.css";
 import Image from "./image";
+import data from "@emoji-mart/data";
+import Picker from "@emoji-mart/react";
 
 const chat = () => {
 	const ChatContext = useContext(socketContext);
 	const [messageList, setMessageList] = useState([]);
 	const [currentMessage, setCurrentMessage] = useState("");
 	const [image, setImage] = useState({ preview: "", raw: "" });
+	const [showEmoji, setShowEmoji] = useState(false);
 	const theme = "snow";
 	const modules = {
 		toolbar: [
@@ -64,6 +67,7 @@ const chat = () => {
 			};
 			await ChatContext.socket.emit("send_message", messageData);
 			setMessageList((list) => [...list, messageData]);
+			setShowEmoji(false);
 		}
 	};
 
@@ -103,6 +107,17 @@ const chat = () => {
 				preview: URL.createObjectURL(e.target.files[0]),
 				raw: e.target.files[0],
 			});
+		}
+	};
+	const showEmojiPicker = () => {
+		setShowEmoji(true);
+	};
+
+	const setEmojiMessage = (emoji) => {
+		if (currentMessage !== "") {
+			setCurrentMessage(currentMessage + " " + emoji.native);
+		} else {
+			setCurrentMessage(emoji.native);
 		}
 	};
 
@@ -206,10 +221,28 @@ const chat = () => {
 									onChange={handleChange}
 								/>
 							</div>
-							<img
-								src="https://img.icons8.com/ios/50/null/happy--v1.png"
-								className="invert cursor-pointer pl-1 h-[20px] w-[25px]"
-							/>
+							<button
+								onClick={showEmojiPicker}
+								className="w-[30px] h-[20px]"
+							>
+								{showEmoji && (
+									<div className="absolute bottom-[35vh] h-[30vh] object-contain">
+										<Picker
+											data={data}
+											onEmojiSelect={(emoji) => {
+												setEmojiMessage(emoji);
+											}}
+										/>
+									</div>
+								)}
+								<label htmlFor="show-emoji">
+									<img
+										src="https://img.icons8.com/ios/50/null/happy--v1.png"
+										className="invert cursor-pointer pl-1 h-[20px] w-[25px]"
+									/>
+								</label>
+							</button>
+
 							<img
 								src="https://img.icons8.com/external-tal-revivo-green-tal-revivo/36/null/external-emailing-the-hotel-for-the-enquires-and-document-exchange-hotel-green-tal-revivo.png"
 								className="invert cursor-pointer h-[20px] w-[25px]"
