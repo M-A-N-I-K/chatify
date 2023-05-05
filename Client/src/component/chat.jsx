@@ -12,20 +12,30 @@ const chat = () => {
 	const [currentMessage, setCurrentMessage] = useState("");
 	const [image, setImage] = useState({ preview: "", raw: "" });
 	const [showEmoji, setShowEmoji] = useState(false);
+	const [websitePreview, setWebsitePreview] = useState(null);
 	const theme = "snow";
 	const modules = {
 		toolbar: [
 			["bold", "italic", "underline", "strike"],
 			["link"],
+			["blockquote", "code-block"],
 			[({ list: "ordered" }, { list: "bullet" })],
-			["code-block"],
 		],
 	};
 
 	const placeholder =
 		currentMessage === "" ? "Enter your message here" : currentMessage;
 
-	const formats = ["bold", "italic", "underline", "strike", "list"];
+	const formats = [
+		"bold",
+		"italic",
+		"underline",
+		"strike",
+		"list",
+		"link",
+		"code-block",
+		"blockquote",
+	];
 	const { quill, quillRef } = useQuill({
 		theme,
 		modules,
@@ -38,6 +48,22 @@ const chat = () => {
 			quill.setContents({ ops: [] });
 		}
 	};
+
+	useEffect(() => {
+		ChatContext.socket.on("previewImage", (preview) => {
+			setWebsitePreview(preview);
+			console.log("Set preview running");
+		});
+		console.log(websitePreview);
+	}, []);
+
+	function extractHrefFromHtml(html) {
+		const parser = new DOMParser();
+		const doc = parser.parseFromString(html, "text/html");
+		const anchorElement = doc.querySelector("a");
+		const href = anchorElement.getAttribute("href");
+		return href;
+	}
 
 	const sendMessage = async () => {
 		if (image !== "" && isQuillEmpty(currentMessage)) {
@@ -60,21 +86,45 @@ const chat = () => {
 			setMessageList((list) => [...list, messageData]);
 			setImage({ preview: "", raw: "" });
 		} else if (currentMessage !== "") {
-			const messageData = {
-				room: ChatContext.roomNumber,
-				author: ChatContext.username,
-				message: currentMessage,
-				type: "text",
-				time:
-					new Date(Date.now()).getHours() +
-					":" +
-					new Date(Date.now()).getMinutes() +
-					":" +
-					new Date(Date.now()).getSeconds(),
-			};
-			await ChatContext.socket.emit("send_message", messageData);
-			setMessageList((list) => [...list, messageData]);
-			setShowEmoji(false);
+			const urlRegex = /(https?:\/\/[^\s]+)/g;
+			const urls = currentMessage.match(urlRegex);
+			if (urls) {
+				const url = extractHrefFromHtml(currentMessage);
+				console.log(url);
+				ChatContext.socket.emit("preview", url);
+				console.log(url);
+				const messageData = {
+					room: ChatContext.roomNumber,
+					author: ChatContext.username,
+					message: currentMessage,
+					preview: websitePreview,
+					type: "website",
+					time:
+						new Date(Date.now()).getHours() +
+						":" +
+						new Date(Date.now()).getMinutes() +
+						":" +
+						new Date(Date.now()).getSeconds(),
+				};
+				await ChatContext.socket.emit("send_message", messageData);
+				setMessageList((list) => [...list, messageData]);
+			} else {
+				const messageData = {
+					room: ChatContext.roomNumber,
+					author: ChatContext.username,
+					message: currentMessage,
+					type: "text",
+					time:
+						new Date(Date.now()).getHours() +
+						":" +
+						new Date(Date.now()).getMinutes() +
+						":" +
+						new Date(Date.now()).getSeconds(),
+				};
+				await ChatContext.socket.emit("send_message", messageData);
+				setMessageList((list) => [...list, messageData]);
+				setShowEmoji(false);
+			}
 			setCurrentMessage("");
 			handleClearEditor();
 		}
@@ -150,12 +200,25 @@ const chat = () => {
 														__html: chat.message,
 													}}
 												></p>
-											) : (
+											) : chat.type === "image" ? (
 												<Image
 													fileName={chat.fileName}
 													blob={chat.message}
 													type={chat.mimeType}
 												/>
+											) : (
+												<>
+													<img
+														src={`data:image/png;base64,${websitePreview}`}
+														alt="Website preview"
+													/>
+													<p
+														className="text-sm"
+														dangerouslySetInnerHTML={{
+															__html: chat.message,
+														}}
+													></p>
+												</>
 											)}
 										</div>
 

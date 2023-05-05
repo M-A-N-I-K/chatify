@@ -3,6 +3,8 @@ const app = express();
 
 import http from "http";
 import cors from "cors"
+import puppeteer from "puppeteer";
+import { Blob } from "buffer";
 
 app.use(cors());
 
@@ -19,14 +21,28 @@ const io = new Server(server, {
 
 io.on("connection", (socket) => {
     console.log(`User connected with ${socket.id}`);
+
     socket.on("join_room", (data) => {
         socket.join(data);
         console.log(`User with id ${socket.id} joined room : ${data}`);
     })
+
     socket.on("send_message", (data) => {
-        console.log(data);
         socket.to(data.room).emit("recieve_message", data);
     })
+
+    socket.on("preview", async (url) => {
+        const browser = await puppeteer.launch({ headless: "new" });
+        const page = await browser.newPage();
+        await page.goto(url);
+        const screenshot = await page.screenshot({ type: 'png' });
+        let binary = Buffer.from(screenshot, 'binary');
+        let base64 = binary.toString('base64');
+        socket.emit("previewImage", base64);
+        await browser.close();
+
+    })
+
     socket.on("disconnect", () => {
         console.log(`User Offline ${socket.id}`);
     })
