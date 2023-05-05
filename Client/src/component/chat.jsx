@@ -22,7 +22,8 @@ const chat = () => {
 		],
 	};
 
-	const placeholder = "Enter your message";
+	const placeholder =
+		currentMessage === "" ? "Enter your message here" : currentMessage;
 
 	const formats = ["bold", "italic", "underline", "strike", "list"];
 	const { quill, quillRef } = useQuill({
@@ -31,6 +32,12 @@ const chat = () => {
 		formats,
 		placeholder,
 	});
+
+	const handleClearEditor = () => {
+		if (quill) {
+			quill.setContents({ ops: [] });
+		}
+	};
 
 	const sendMessage = async () => {
 		if (image !== "" && isQuillEmpty(currentMessage)) {
@@ -68,6 +75,8 @@ const chat = () => {
 			await ChatContext.socket.emit("send_message", messageData);
 			setMessageList((list) => [...list, messageData]);
 			setShowEmoji(false);
+			setCurrentMessage("");
+			handleClearEditor();
 		}
 	};
 
