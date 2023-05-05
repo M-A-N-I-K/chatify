@@ -1,6 +1,5 @@
 <h1 align="center">
   <br>
-  <a href="#"><img src="https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.chatify-app.com%2F&psig=AOvVaw3yGCQ-l7wp4Jw6nZC0A-Ci&ust=1683403253602000&source=images&cd=vfe&ved=0CBEQjRxqFwoTCLD43vf73v4CFQAAAAAdAAAAABAE" alt="Chatify" width="200"></a>
   <br>
   Chatify
   <br>
