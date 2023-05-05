@@ -8,7 +8,7 @@ const chat = () => {
 	const ChatContext = useContext(socketContext);
 	const [messageList, setMessageList] = useState([]);
 	const [currentMessage, setCurrentMessage] = useState("");
-	const [image, setImage] = useState("");
+	const [image, setImage] = useState({ preview: "", raw: "" });
 	const theme = "snow";
 	const modules = {
 		toolbar: [
@@ -29,15 +29,15 @@ const chat = () => {
 
 	const sendMessage = async () => {
 		if (image !== "" && isQuillEmpty(currentMessage)) {
-			const blob = new Blob([image], { type: image.type });
+			const blob = new Blob([image.raw], { type: image.raw.type });
 			console.log(blob);
 			const messageData = {
 				room: ChatContext.roomNumber,
 				author: ChatContext.username,
 				message: blob,
 				type: "image",
-				mimeType: image.type,
-				fileName: image.name,
+				mimeType: image.raw.type,
+				fileName: image.raw.name,
 				time:
 					new Date(Date.now()).getHours() +
 					":" +
@@ -47,7 +47,7 @@ const chat = () => {
 			};
 			await ChatContext.socket.emit("send_message", messageData);
 			setMessageList((list) => [...list, messageData]);
-			setImage("");
+			setImage({ preview: "", raw: "" });
 		} else if (currentMessage !== "") {
 			const messageData = {
 				room: ChatContext.roomNumber,
@@ -99,7 +99,10 @@ const chat = () => {
 
 	const handleChange = (e) => {
 		if (e.target.files.length) {
-			setImage(e.target.files[0]);
+			setImage({
+				preview: URL.createObjectURL(e.target.files[0]),
+				raw: e.target.files[0],
+			});
 		}
 	};
 
@@ -182,11 +185,11 @@ const chat = () => {
 						<div className="flex justify-evenly w-[20vw] lg:w-[6vw] z-20">
 							<div className="w-[30px] h-[20px]">
 								<label htmlFor="upload-button">
-									{image !== "" && (
+									{image.preview !== "" && (
 										<figure className="absolute top-10 h-[25vh]">
 											<img
 												className="h-auto max-w-full rounded-lg"
-												src={image}
+												src={image.preview}
 												alt="image"
 											/>
 										</figure>
