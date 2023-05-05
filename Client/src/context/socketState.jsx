@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import SocketContext from "./socketContext";
 import io from "socket.io-client";
-const socket = io.connect("http://localhost:3000");
+const socket = io.connect("https://chatify-backend-ll7j.onrender.com");
 
 const socketState = (props) => {
 	const [username, setUsername] = useState("");

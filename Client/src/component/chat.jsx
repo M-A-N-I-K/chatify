@@ -32,7 +32,6 @@ const chat = () => {
 	const sendMessage = async () => {
 		if (image !== "" && isQuillEmpty(currentMessage)) {
 			const blob = new Blob([image.raw], { type: image.raw.type });
-			console.log(blob);
 			const messageData = {
 				room: ChatContext.roomNumber,
 				author: ChatContext.username,
@@ -74,7 +73,6 @@ const chat = () => {
 		};
 
 		ChatContext.socket.on("recieve_message", handleMessage);
-		console.log(messageList);
 		return () => {
 			ChatContext.socket.off("recieve_message", handleMessage);
 		};
@@ -113,7 +111,6 @@ const chat = () => {
 			<div className="flex flex-col flex-grow w-full max-w-xl bg-gray-800 shadow-xl rounded-lg overflow-hidden">
 				<div className="flex flex-col flex-grow h-0 p-4 overflow-auto">
 					{messageList.map((chat, key) => {
-						console.log(chat);
 						if (chat.author == ChatContext.username) {
 							return (
 								<div
@@ -188,9 +185,9 @@ const chat = () => {
 							<div className="w-[30px] h-[20px]">
 								<label htmlFor="upload-button">
 									{image.preview !== "" && (
-										<figure className="absolute top-10 h-[25vh]">
+										<figure className="absolute top-10 h-[65vh] object-contain">
 											<img
-												className="h-auto max-w-full rounded-lg"
+												className="h-full max-w-full rounded-lg"
 												src={image.preview}
 												alt="image"
 											/>
