@@ -1,10 +1,29 @@
 import React, { useContext, useEffect, useState } from "react";
 import socketContext from "../context/socketContext";
+import { useQuill } from "react-quilljs";
+import "quill/dist/quill.snow.css";
 
 const chat = () => {
 	const ChatContext = useContext(socketContext);
 	const [messageList, setMessageList] = useState([]);
 	const [currentMessage, setCurrentMessage] = useState("");
+	const theme = "snow";
+	const modules = {
+		toolbar: [
+			["bold", "italic", "underline", "strike"],
+			[{ list: "ordered" }, { list: "bullet" }],
+		],
+	};
+
+	const placeholder = "Enter your message";
+
+	const formats = ["bold", "italic", "underline", "strike", "list"];
+	const { quill, quillRef } = useQuill({
+		theme,
+		modules,
+		formats,
+		placeholder,
+	});
 
 	const sendMessage = async () => {
 		if (currentMessage !== "") {
@@ -38,6 +57,16 @@ const chat = () => {
 		};
 	}, [ChatContext.socket]);
 
+	useEffect(() => {
+		if (quill) {
+			quill.on("text-change", (delta, oldDelta, source) => {
+				const htmlMarkup = quillRef.current.firstChild.innerHTML;
+				setCurrentMessage(htmlMarkup);
+			});
+			console.log(currentMessage);
+		}
+	}, [quill]);
+
 	return (
 		<div className="flex flex-col items-center justify-center w-screen min-h-screen bg-black text-white p-0 sm:p-10">
 			<div className="flex flex-col flex-grow w-full max-w-xl bg-gray-800 shadow-xl rounded-lg overflow-hidden">
@@ -51,7 +80,12 @@ const chat = () => {
 								>
 									<div>
 										<div className="bg-blue-600 text-white p-3 rounded-l-lg rounded-br-lg">
-											<p className="text-sm">{chat.message}</p>
+											<p
+												className="text-sm"
+												dangerouslySetInnerHTML={{
+													__html: chat.message,
+												}}
+											></p>
 										</div>
 										<span className="text-xs text-gray-500 leading-none">
 											{chat.time}
@@ -73,7 +107,12 @@ const chat = () => {
 								</div>
 								<div>
 									<div className="bg-gray-300 p-3 rounded-r-lg rounded-bl-lg">
-										<p className="text-sm">{chat.message}</p>
+										<p
+											className="text-sm"
+											dangerouslySetInnerHTML={{
+												__html: chat.message,
+											}}
+										></p>
 									</div>
 									<span className="text-xs text-gray-500 leading-none">
 										{chat.time}
@@ -84,49 +123,18 @@ const chat = () => {
 					})}
 				</div>
 
-				<div className="bg-gray-900 flex flex-col">
-					<div className="flex w-[20vw] py-2 justify-between mx-4">
-						<img
-							src="https://img.icons8.com/ios-glyphs/30/null/bold.png"
-							className="invert h-[20px] cursor-pointer w-[30px] pr-2 border-black"
-						/>
-						<img
-							src="https://img.icons8.com/ios-glyphs/30/null/italic.png"
-							className="invert h-[20px] cursor-pointer w-[30px] pr-2 border-r-2 border-opacity-40  border-black"
-						/>
-						<img
-							src="https://img.icons8.com/ios/50/null/link--v1.png"
-							className="invert h-[20px] cursor-pointer w-[30px] pr-2 border-r-2 border-opacity-40  border-black"
-						/>
-						<img
-							src="https://img.icons8.com/ios-filled/50/null/numbered-list.png"
-							className="invert h-[20px] cursor-pointer w-[30px] pr-2  border-black"
-						/>
-						<img
-							src="https://img.icons8.com/ios-glyphs/30/null/overview-pages-3--v1.png"
-							className="invert h-[20px] cursor-pointer w-[30px] pr-2 border-r-2 border-opacity-40  border-black"
-						/>
-						<img
-							src="https://img.icons8.com/external-those-icons-lineal-those-icons/48/null/external-Align-alignment-and-paragraph-those-icons-lineal-those-icons-2.png"
-							className="invert h-[20px] cursor-pointer w-[30px] pr-2 border-r-2 border-opacity-40  border-black"
-						/>
-						<img
-							src="https://img.icons8.com/external-others-inmotus-design/67/null/external-Code-result-others-inmotus-design-3.png"
-							className="invert h-[20px] cursor-pointer w-[30px] pr-2 border-r-2 border-opacity-40  border-black"
-						/>
+				<div className="bg-gray-900 flex justify-center items-center flex-col">
+					{/* <ReactQuill
+						theme="snow"
+						className="text-white"
+						onChange={setCurrentMessage}
+						placeholder="Enter your message.."
+					/> */}
+					<div className="w-full  invert">
+						<div ref={quillRef} className="rounded-xl text-black" />
 					</div>
-					<input
-						className="mx-4 flex items-center h-10 bg-gray-900 text-white rounded px-3 text-sm"
-						type="text"
-						onChange={(e) => setCurrentMessage(e.target.value)}
-						onKeyUp={(event) => {
-							if (event.key === "Enter") {
-								sendMessage();
-							}
-						}}
-						placeholder="Type your message…"
-					/>
-					<div className="flex justify-between items-center mt-2 px-4 pb-4">
+
+					<div className="flex w-full justify-between items-center mt-2 px-4 pb-4">
 						<div className="flex justify-evenly w-[20vw] lg:w-[6vw] z-20">
 							<img
 								src="https://img.icons8.com/ios/50/null/plus--v1.png"

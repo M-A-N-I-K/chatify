@@ -19,6 +19,7 @@ const chatroom = () => {
 						ify
 					</span>{" "}
 				</h1>
+
 				<label
 					htmlFor="username"
 					className="block mb-2  px-3  text-md font-medium text-white"
@@ -28,7 +29,6 @@ const chatroom = () => {
 				<input
 					type="text"
 					id="username"
-					r
 					onChange={(e) => chatRoomContext.setUsername(e.target.value)}
 					className="mx-4 w-[50vw] lg:w-[30vw] flex items-center h-10 bg-gray-900 text-white rounded px-3 text-sm"
 					placeholder="Your username"
