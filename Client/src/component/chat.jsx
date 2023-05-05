@@ -13,7 +13,9 @@ const chat = () => {
 	const modules = {
 		toolbar: [
 			["bold", "italic", "underline", "strike"],
-			[{ list: "ordered" }, { list: "bullet" }],
+			["link"],
+			[({ list: "ordered" }, { list: "bullet" })],
+			["code-block"],
 		],
 	};
 
