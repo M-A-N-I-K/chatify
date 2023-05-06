@@ -52,13 +52,13 @@
 To install chatify, follow these steps:
 
 1. Clone the repository to your local machine using `git clone https://github.com/M-A-N-I-K/chatify.git`
-2. Navigate to the project directory using `cd Client`
-3. Install the required dependencies using `npm install`
-4. Run `npm run dev`
-5. Open a new terminal using ctrl + shift + `
-6. Navigate to the project directory using `cd Server`
-7. Install the required dependencies using `npm install`
-8. Run `nodemon index.js`
+2. Navigate to the project directory using `cd chatify/Client`
+4. Install the required dependencies using `npm install`
+5. Run `npm run dev`
+6. Open a new terminal using ctrl + shift + `
+7. Navigate to the project directory using `cd chatify/Server`
+8. Install the required dependencies using `npm install`
+9. Run `node index.js`
 
 
 ## Contributors
