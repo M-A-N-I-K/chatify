@@ -5,7 +5,7 @@
   <br>
 </h1>
 
-<h4 align="center">Chatify is a chat web application that allows users to chat with each other. It has a variety of text-format options in the chat text input window to enhance user experience.</h4>
+<h4 align="center">Chatify is a web-based chat application that allows two or more users to chat with each other. The chat text input window includes several text-format options, including bold, italic, strikethrough, hyperlink, file upload, emoji, etc. The received text will appear with the same formatting as the sender's text. Additionally, web links in the chat will display as a preview of the linked webpage.</h4>
 
 <p align="center">
   <a href="https://badge.fury.io/js/electron-markdownify">
@@ -31,17 +31,14 @@
 ![App Screenshot](https://img2link.com/images/2023/05/05/7c5ae838b4d404dca262fa855fca9f3c.jpg)
 ![App Screenshot](https://img2link.com/images/2023/05/05/7d64d92d5dada6b0e41251cfc506c300.jpg)
 ![App Screenshot](https://img2link.com/images/2023/05/05/b2436990b37ff42381d82b04ee984ffe.jpg)
+![App Screenshot](https://img2link.com/images/2023/05/06/8af85cade7e8f003a5c81f495e3de67a.jpg)
 
 ## Key Features
 
 - Bold, Italic, Strikethrough text formatting
 - Hyperlink insertion
-- Bulleted and Numbered Lists
-- Blockquote insertion
-- Code Snippet and Code Block insertion
 - File Upload
 - Emoji insertion
-- Mention someone in the chat
 - Web links preview
 
 ## Tech Stack
