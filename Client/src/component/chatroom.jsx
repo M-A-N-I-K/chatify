@@ -6,7 +6,10 @@ const chatroom = () => {
 	const chatRoomContext = useContext(socketContext);
 	const joinRoom = () => {
 		if (chatRoomContext.username !== "" && chatRoomContext.roomNumber !== 0) {
-			chatRoomContext.socket.emit("join_room", chatRoomContext.roomNumber);
+			chatRoomContext.socket.emit("join_room", {
+				roomNumber: chatRoomContext.roomNumber,
+				username: chatRoomContext.username,
+			});
 			chatRoomContext.setShowChat(true);
 		}
 	};

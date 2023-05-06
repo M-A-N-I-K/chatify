@@ -12,7 +12,8 @@ const chat = () => {
 	const [currentMessage, setCurrentMessage] = useState("");
 	const [image, setImage] = useState({ preview: "", raw: "" });
 	const [showEmoji, setShowEmoji] = useState(false);
-	const [websitePreview, setWebsitePreview] = useState(null);
+	const [userJoined, setUserJoined] = useState("");
+	const [userLeft, setUserLeft] = useState("");
 	const theme = "snow";
 	const modules = {
 		toolbar: [
@@ -49,14 +50,6 @@ const chat = () => {
 		}
 	};
 
-	useEffect(() => {
-		ChatContext.socket.on("previewImage", (preview) => {
-			setWebsitePreview(preview);
-			console.log("Set preview running");
-		});
-		console.log(websitePreview);
-	}, []);
-
 	function extractHrefFromHtml(html) {
 		const parser = new DOMParser();
 		const doc = parser.parseFromString(html, "text/html");
@@ -91,8 +84,14 @@ const chat = () => {
 			if (urls) {
 				const url = extractHrefFromHtml(currentMessage);
 				console.log(url);
-				ChatContext.socket.emit("preview", url);
-				console.log(url);
+				await ChatContext.socket.emit("preview", url);
+				const previewPromise = new Promise((resolve) => {
+					ChatContext.socket.on("previewImage", (preview) => {
+						resolve(preview);
+					});
+				});
+				let websitePreview = await previewPromise;
+				console.log(websitePreview);
 				const messageData = {
 					room: ChatContext.roomNumber,
 					author: ChatContext.username,
@@ -135,6 +134,16 @@ const chat = () => {
 			setMessageList((list) => [...list, data]);
 		};
 
+		ChatContext.socket.on("user_joined", (username) => {
+			const tempMessage = `${username} joined the chat`;
+			console.log(tempMessage);
+			setUserJoined(tempMessage);
+		});
+		ChatContext.socket.on("user_left", (username) => {
+			const tempMessage = `${username} left the chat`;
+			console.log(tempMessage);
+			setUserLeft(tempMessage);
+		});
 		ChatContext.socket.on("recieve_message", handleMessage);
 		return () => {
 			ChatContext.socket.off("recieve_message", handleMessage);
@@ -184,7 +193,22 @@ const chat = () => {
 		<div className="flex flex-col items-center justify-center w-screen min-h-screen bg-black text-white p-0 sm:p-10">
 			<div className="flex flex-col flex-grow w-full max-w-xl bg-gray-800 shadow-xl rounded-lg overflow-hidden">
 				<div className="flex flex-col flex-grow h-0 p-4 overflow-auto">
+					{userJoined !== "" && (
+						<div className="flex w-full mt-2 space-x-3 max-w-xs">
+							<div className="bg-gray-500 p-3 text-black rounded-r-lg rounded-bl-lg">
+								<p className="text-sm">{userJoined}</p>
+							</div>
+						</div>
+					)}
+					{userLeft !== "" && (
+						<div className="flex w-full mt-2 space-x-3 max-w-xs">
+							<div className="bg-gray-500 p-3 text-black rounded-r-lg rounded-bl-lg">
+								<p className="text-sm">{userLeft}</p>
+							</div>
+						</div>
+					)}
 					{messageList.map((chat, key) => {
+						console.log(chat);
 						if (chat.author == ChatContext.username) {
 							return (
 								<div
@@ -208,16 +232,16 @@ const chat = () => {
 												/>
 											) : (
 												<>
-													<img
-														src={`data:image/png;base64,${websitePreview}`}
-														alt="Website preview"
-													/>
 													<p
-														className="text-sm"
+														className="text-sm underline text-white pb-1"
 														dangerouslySetInnerHTML={{
 															__html: chat.message,
 														}}
 													></p>
+													<img
+														src={`data:image/png;base64,${chat.preview}`}
+														alt="Website preview"
+													/>
 												</>
 											)}
 										</div>
@@ -245,12 +269,25 @@ const chat = () => {
 													__html: chat.message,
 												}}
 											></p>
-										) : (
+										) : chat.type === "image" ? (
 											<Image
 												fileName={chat.fileName}
 												blob={chat.message}
 												type={chat.mimeType}
 											/>
+										) : (
+											<>
+												<p
+													className="text-sm underline text-blue-800 pb-1"
+													dangerouslySetInnerHTML={{
+														__html: chat.message,
+													}}
+												></p>
+												<img
+													src={`data:image/png;base64,${chat.preview}`}
+													alt="Website preview"
+												/>
+											</>
 										)}
 									</div>
 									<span className="text-xs text-gray-500 leading-none">

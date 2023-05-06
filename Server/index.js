@@ -4,7 +4,6 @@ const app = express();
 import http from "http";
 import cors from "cors"
 import puppeteer from "puppeteer";
-import { Blob } from "buffer";
 
 app.use(cors());
 
@@ -19,12 +18,19 @@ const io = new Server(server, {
     }
 })
 
+const users = [];
+
 io.on("connection", (socket) => {
     console.log(`User connected with ${socket.id}`);
 
     socket.on("join_room", (data) => {
-        socket.join(data);
-        console.log(`User with id ${socket.id} joined room : ${data}`);
+        console.log(data);
+        socket.join(data.roomNumber);
+        console.log(`User with id ${socket.id} joined room : ${data.roomNumber}`);
+        users[socket.id] = data.username;
+        console.log(data);
+        console.log(users[socket.id]);
+        socket.to(data.roomNumber).emit("user_joined", data.username);
     })
 
     socket.on("send_message", (data) => {
@@ -44,7 +50,9 @@ io.on("connection", (socket) => {
     })
 
     socket.on("disconnect", () => {
+        socket.broadcast.emit("user_left", users[socket.id]);
         console.log(`User Offline ${socket.id}`);
+        delete users[socket.id];
     })
 })
 
