@@ -12,8 +12,8 @@ const chat = () => {
 	const [currentMessage, setCurrentMessage] = useState("");
 	const [image, setImage] = useState({ preview: "", raw: "" });
 	const [showEmoji, setShowEmoji] = useState(false);
-	const [userJoined, setUserJoined] = useState("");
-	const [userLeft, setUserLeft] = useState("");
+	const [joinedUsers, setJoinedUsers] = useState([]);
+	const [leftUsers, setLeftUsers] = useState([]);
 	const theme = "snow";
 	const modules = {
 		toolbar: [
@@ -134,21 +134,48 @@ const chat = () => {
 			setMessageList((list) => [...list, data]);
 		};
 
-		ChatContext.socket.on("user_joined", (username) => {
-			const tempMessage = `${username} joined the chat`;
-			console.log(tempMessage);
-			setUserJoined(tempMessage);
-		});
-		ChatContext.socket.on("user_left", (username) => {
-			const tempMessage = `${username} left the chat`;
-			console.log(tempMessage);
-			setUserLeft(tempMessage);
-		});
+		const handleUserJoined = (username) => {
+			if (!joinedUsers.includes(username)) {
+				const tempMessage = `${username} joined the chat`;
+				setMessageList((list) => [
+					...list,
+					{
+						message: tempMessage,
+						time: new Date().toLocaleTimeString(),
+						type: "alert",
+					},
+				]);
+				setJoinedUsers([...joinedUsers, username]);
+			}
+		};
+
+		const handleUserLeft = (username) => {
+			if (!leftUsers.includes(username)) {
+				const tempMessage = `${username} left the chat`;
+				setMessageList((list) => [
+					...list,
+					{
+						message: tempMessage,
+						time: new Date().toLocaleTimeString(),
+						type: "alert",
+					},
+				]);
+				setLeftUsers([...leftUsers, username]);
+			}
+		};
+
 		ChatContext.socket.on("recieve_message", handleMessage);
+		ChatContext.socket.on("user_joined", handleUserJoined);
+		ChatContext.socket.on("user_left", handleUserLeft);
+
 		return () => {
 			ChatContext.socket.off("recieve_message", handleMessage);
+			ChatContext.socket.off("user_joined", handleUserJoined);
+			ChatContext.socket.off("user_left", handleUserLeft);
 		};
-	}, [ChatContext.socket]);
+	}, [ChatContext.socket, joinedUsers, leftUsers]);
+
+	useEffect(() => {}, []);
 
 	function isQuillEmpty(chatMessage) {
 		if (
@@ -193,20 +220,6 @@ const chat = () => {
 		<div className="flex flex-col items-center justify-center w-screen min-h-screen bg-black text-white p-0 sm:p-10">
 			<div className="flex flex-col flex-grow w-full max-w-xl bg-gray-800 shadow-xl rounded-lg overflow-hidden">
 				<div className="flex flex-col flex-grow h-0 p-4 overflow-auto">
-					{userJoined !== "" && (
-						<div className="flex w-full mt-2 space-x-3 max-w-xs">
-							<div className="bg-gray-500 p-3 text-black rounded-r-lg rounded-bl-lg">
-								<p className="text-sm">{userJoined}</p>
-							</div>
-						</div>
-					)}
-					{userLeft !== "" && (
-						<div className="flex w-full mt-2 space-x-3 max-w-xs">
-							<div className="bg-gray-500 p-3 text-black rounded-r-lg rounded-bl-lg">
-								<p className="text-sm">{userLeft}</p>
-							</div>
-						</div>
-					)}
 					{messageList.map((chat, key) => {
 						console.log(chat);
 						if (chat.author == ChatContext.username) {
@@ -216,6 +229,9 @@ const chat = () => {
 									className="flex w-full mt-2 space-x-3 max-w-xs ml-auto justify-end"
 								>
 									<div>
+										<span className="text-xs text-gray-500 leading-none">
+											{chat.time}
+										</span>
 										<div className="bg-blue-600 text-white p-3 rounded-l-lg rounded-br-lg">
 											{chat.type === "text" ? (
 												<p
@@ -245,12 +261,12 @@ const chat = () => {
 												</>
 											)}
 										</div>
-
 										<span className="text-xs text-gray-500 leading-none">
-											{chat.time}
+											{chat.author}
 										</span>
 									</div>
-									<div className="flex-shrink-0 h-10 w-10 rounded-full bg-gray-300"></div>
+									{/* <div className="flex-shrink-0 h-10 w-10 rounded-full bg-gray-300">
+									</div> */}
 								</div>
 							);
 						}
@@ -259,8 +275,10 @@ const chat = () => {
 								key={key}
 								className="flex w-full mt-2 space-x-3 max-w-xs"
 							>
-								<div className="flex-shrink-0 h-10 w-10 rounded-full bg-gray-300"></div>
 								<div>
+									<span className="text-xs text-gray-500 leading-none">
+										{chat.time}
+									</span>
 									<div className="bg-gray-500 p-3 text-black rounded-r-lg rounded-bl-lg">
 										{chat.type === "text" ? (
 											<p
@@ -275,6 +293,15 @@ const chat = () => {
 												blob={chat.message}
 												type={chat.mimeType}
 											/>
+										) : chat.type === "alert" ? (
+											<div className="flex w-full mt-2 space-x-3 max-w-xs">
+												<div className="bg-gray-500 p-3 text-black rounded-r-lg rounded-bl-lg">
+													<p className="text-sm">{chat.message}</p>
+													<span className="text-xs text-gray-500 leading-none">
+														{chat.time}
+													</span>
+												</div>
+											</div>
 										) : (
 											<>
 												<p
@@ -290,8 +317,9 @@ const chat = () => {
 											</>
 										)}
 									</div>
+
 									<span className="text-xs text-gray-500 leading-none">
-										{chat.time}
+										{chat.author}
 									</span>
 								</div>
 							</div>
