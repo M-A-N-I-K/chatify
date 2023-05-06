@@ -14,6 +14,7 @@ const chat = () => {
 	const [showEmoji, setShowEmoji] = useState(false);
 	const [joinedUsers, setJoinedUsers] = useState([]);
 	const [leftUsers, setLeftUsers] = useState([]);
+	const [roomUsers, setRoomUsers] = useState([]);
 	const theme = "snow";
 	const modules = {
 		toolbar: [
@@ -175,8 +176,6 @@ const chat = () => {
 		};
 	}, [ChatContext.socket, joinedUsers, leftUsers]);
 
-	useEffect(() => {}, []);
-
 	function isQuillEmpty(chatMessage) {
 		if (
 			chatMessage.replace(/<(.|\n)*?>/g, "").trim().length === 0 &&
@@ -230,7 +229,7 @@ const chat = () => {
 								>
 									<div>
 										<span className="text-xs text-gray-500 leading-none">
-											{chat.time}
+											{chat.author}
 										</span>
 										<div className="bg-blue-600 text-white p-3 rounded-l-lg rounded-br-lg">
 											{chat.type === "text" ? (
@@ -262,7 +261,7 @@ const chat = () => {
 											)}
 										</div>
 										<span className="text-xs text-gray-500 leading-none">
-											{chat.author}
+											{chat.time}
 										</span>
 									</div>
 									{/* <div className="flex-shrink-0 h-10 w-10 rounded-full bg-gray-300">
@@ -277,8 +276,9 @@ const chat = () => {
 							>
 								<div>
 									<span className="text-xs text-gray-500 leading-none">
-										{chat.time}
+										{chat.author}
 									</span>
+
 									<div className="bg-gray-500 p-3 text-black rounded-r-lg rounded-bl-lg">
 										{chat.type === "text" ? (
 											<p
@@ -319,7 +319,7 @@ const chat = () => {
 									</div>
 
 									<span className="text-xs text-gray-500 leading-none">
-										{chat.author}
+										{chat.time}
 									</span>
 								</div>
 							</div>
