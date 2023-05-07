@@ -1,6 +1,6 @@
 import "./App.css";
 import { Suspense, lazy } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route, HashRouter } from "react-router-dom";
 import PrivateRoute from "./Routes/privateRoute";
 import Loader from "./component/loader";
 import SocketState from "./context/socketState";
@@ -12,7 +12,7 @@ function App() {
 	return (
 		<>
 			<SocketState>
-				<BrowserRouter>
+				<HashRouter>
 					<Routes>
 						<Route
 							path="/"
@@ -33,7 +33,7 @@ function App() {
 							}
 						/>
 					</Routes>
-				</BrowserRouter>
+				</HashRouter>
 			</SocketState>
 		</>
 	);
