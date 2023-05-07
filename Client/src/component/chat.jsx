@@ -14,7 +14,7 @@ const chat = () => {
 	const [showEmoji, setShowEmoji] = useState(false);
 	const [joinedUsers, setJoinedUsers] = useState([]);
 	const [leftUsers, setLeftUsers] = useState([]);
-	const [roomUsers, setRoomUsers] = useState([]);
+	const [showList, setShowList] = useState(false);
 	const modules = {
 		toolbar: [
 			["bold", "italic", "underline", "strike"],
@@ -144,6 +144,7 @@ const chat = () => {
 				setLeftUsers([...leftUsers, username]);
 			}
 		};
+		console.log(joinedUsers);
 
 		ChatContext.socket.on("recieve_message", handleMessage);
 		ChatContext.socket.on("user_joined", handleUserJoined);
@@ -266,7 +267,7 @@ const chat = () => {
 											/>
 										) : chat.type === "alert" ? (
 											<div className="flex w-full mt-2 space-x-3 max-w-xs">
-												<div className="bg-gray-500 p-3 text-black rounded-r-lg rounded-bl-lg">
+												<div className="bg-gray-500 px-1 text-black rounded-r-lg rounded-bl-lg">
 													<p className="text-sm">{chat.message}</p>
 													<span className="text-xs text-gray-500 leading-none">
 														{chat.time}
@@ -309,6 +310,27 @@ const chat = () => {
 							placeholder="Enter your message here..."
 						/>
 					</div>
+					{showList && (
+						<div className="absolute left-[10vw] sm:left-[35vw] bottom-20">
+							<ul className="w-40 bg-gray-700 rounded-xl">
+								<li className="w-full flex rounded-lg bg-primary-100 p-4 border-b-4 border-opacity-40 text-primary-600">
+									Users Online{" "}
+									<span className="text-green-500 ml-1">●</span>
+								</li>
+								{joinedUsers.map((user, key) => {
+									return (
+										<li
+											key={key}
+											className="w-full px-4 py-2 hover:bg-zinc-800 hover:cursor-pointer border-b-2 border-opacity-40"
+											// onClick={() => mentionUser(user)}
+										>
+											@{user}
+										</li>
+									);
+								})}
+							</ul>
+						</div>
+					)}
 
 					<div className="flex w-full justify-between items-center mt-2 px-4 pb-4">
 						<div className="flex justify-evenly w-[20vw] lg:w-[6vw] z-20">
@@ -357,11 +379,16 @@ const chat = () => {
 									/>
 								</label>
 							</button>
-
-							<img
-								src="https://img.icons8.com/external-tal-revivo-green-tal-revivo/36/null/external-emailing-the-hotel-for-the-enquires-and-document-exchange-hotel-green-tal-revivo.png"
-								className="invert cursor-pointer h-[20px] w-[25px]"
-							/>
+							<button
+								onClick={() => {
+									setShowList(!showList);
+								}}
+							>
+								<img
+									src="https://img.icons8.com/external-tal-revivo-green-tal-revivo/36/null/external-emailing-the-hotel-for-the-enquires-and-document-exchange-hotel-green-tal-revivo.png"
+									className="invert cursor-pointer h-[20px] w-[25px]"
+								/>
+							</button>
 						</div>
 						<button
 							className="cursor-pointer w-[40px] ml-2 md:ml-0 md:w-[60px] py-2 md:py-1 flex justify-center items-center bg-green-600 rounded-xl"
