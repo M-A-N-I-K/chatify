@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import socketContext from "../context/socketContext";
-import { useQuill } from "react-quilljs";
-import "quill/dist/quill.snow.css";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 import Image from "./image";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
@@ -15,7 +15,6 @@ const chat = () => {
 	const [joinedUsers, setJoinedUsers] = useState([]);
 	const [leftUsers, setLeftUsers] = useState([]);
 	const [roomUsers, setRoomUsers] = useState([]);
-	const theme = "snow";
 	const modules = {
 		toolbar: [
 			["bold", "italic", "underline", "strike"],
@@ -25,30 +24,12 @@ const chat = () => {
 		],
 	};
 
-	const placeholder =
-		currentMessage === "" ? "Enter your message here" : currentMessage;
-
-	const formats = [
-		"bold",
-		"italic",
-		"underline",
-		"strike",
-		"list",
-		"link",
-		"code-block",
-		"blockquote",
-	];
-	const { quill, quillRef } = useQuill({
-		theme,
-		modules,
-		formats,
-		placeholder,
-	});
-
-	const handleClearEditor = () => {
-		if (quill) {
-			quill.setContents({ ops: [] });
-		}
+	const editorStyle = {
+		border: "none",
+		borderRadius: "20px",
+		fontSize: "16px",
+		filter: "invert(1)",
+		color: "black",
 	};
 
 	function extractHrefFromHtml(html) {
@@ -126,7 +107,6 @@ const chat = () => {
 				setShowEmoji(false);
 			}
 			setCurrentMessage("");
-			handleClearEditor();
 		}
 	};
 
@@ -186,15 +166,9 @@ const chat = () => {
 		return false;
 	}
 
-	useEffect(() => {
-		if (quill) {
-			quill.on("text-change", (delta, oldDelta, source) => {
-				const htmlMarkup = quillRef.current.firstChild.innerHTML;
-				setCurrentMessage(htmlMarkup);
-			});
-		}
-	}, [quill]);
-
+	const handleMessageChange = (content, delta, source, editor) => {
+		setCurrentMessage(content);
+	};
 	const handleChange = (e) => {
 		if (e.target.files.length) {
 			setImage({
@@ -263,8 +237,6 @@ const chat = () => {
 											{chat.time}
 										</span>
 									</div>
-									{/* <div className="flex-shrink-0 h-10 w-10 rounded-full bg-gray-300">
-									</div> */}
 								</div>
 							);
 						}
@@ -327,8 +299,15 @@ const chat = () => {
 				</div>
 
 				<div className="bg-gray-900 flex justify-center items-center flex-col">
-					<div className="w-full  invert">
-						<div ref={quillRef} className="rounded-xl text-black" />
+					<div className="w-full">
+						<ReactQuill
+							theme="snow"
+							style={editorStyle}
+							modules={modules}
+							value={currentMessage}
+							onChange={handleMessageChange}
+							placeholder="Enter your message here..."
+						/>
 					</div>
 
 					<div className="flex w-full justify-between items-center mt-2 px-4 pb-4">
