@@ -220,7 +220,6 @@ const chat = () => {
 			<div className="flex flex-col flex-grow w-full max-w-xl bg-gray-800 shadow-xl rounded-lg overflow-hidden">
 				<div className="flex flex-col flex-grow h-0 p-4 overflow-auto">
 					{messageList.map((chat, key) => {
-						console.log(chat);
 						if (chat.author == ChatContext.username) {
 							return (
 								<div

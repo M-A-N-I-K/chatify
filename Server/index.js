@@ -1,19 +1,20 @@
 import express from "express";
 const app = express();
-
+import * as dotenv from 'dotenv'
 import http from "http";
 import cors from "cors"
 import puppeteer from "puppeteer";
 
+dotenv.config();
+const API_KEY = process.env.FRONTEND_KEY;
 app.use(cors());
 
 import { Server } from "socket.io"
 
-
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: "http://127.0.0.1:5173",
+        origin: process.env.FRONTEND_KEY,
         methods: ["GET", "POST"],
     }
 })
@@ -24,11 +25,9 @@ io.on("connection", (socket) => {
     console.log(`User connected with ${socket.id}`);
 
     socket.on("join_room", (data) => {
-        console.log(data);
         socket.join(data.roomNumber);
         console.log(`User with id ${socket.id} joined room : ${data.roomNumber}`);
         users[socket.id] = data.username;
-        console.log(data);
         console.log(users[socket.id]);
         socket.to(data.roomNumber).emit("user_joined", data.username);
     })
